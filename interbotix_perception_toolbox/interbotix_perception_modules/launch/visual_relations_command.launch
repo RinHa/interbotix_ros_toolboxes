@@ -1,8 +1,9 @@
 <launch>
   <arg name="use_visual_relations_command_gui"  default="true"/>
+  <arg name="visualrelations_ns"                default="visualrelations"/>
 
-  <node if="$(arg use_visual_relations_command_gui)" # visual_relations_command_gui
-    name="visual_relations_command_gui" # visual_relations_command_gui
+  <node if="$(arg use_visual_relations_command_gui)" 
+    name="visual_relations_command_gui" 
     pkg="interbotix_perception_modules"
     type="visual_relations_command_gui"
     output="screen"
