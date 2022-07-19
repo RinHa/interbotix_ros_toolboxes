@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import rospy
+import rospkg
+import signal
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QFont, QIcon
+from python_qt_binding.QtWidgets import *
+from interbotix_perception_modules.armtag import InterbotixArmTagInterface
+
+class GUI(QWidget):
+    """Placeholder QWidget"""
+
+### @brief GUI to snap the AR tag pose on the arm and calculate the 'ref to arm base_link' transform
+class VisualRelationsCommandGui(QWidget):
+    def __init__(self):
+        super(VisualRelationsCommandGui, self).__init__()
+        r = rospkg.RosPack()
+        # try to locate and load the Qt ui file
+        try:
+            self.pkg_path = r.get_path("interbotix_perception_modules")
+        except rospkg.ResourceNotFound as err:
+            rospy.logerr((
+                "[VisualRelationsCommandGui] Could not find the package "
+                    "'interbotix_perception_modules'.\n"
+                "[VisualRelationsCommandGui] Error was '%s'." % err))
+            exit(1)
+        loadUi(
+            os.path.join(
+                self.pkg_path,
+                "src",
+                "ui",
+                "visualrelationscommandgui.ui"
+            ),
+            self,
+            {"GUI": GUI}
+        )
+        self.name_map = {}
+        # self.position_only = rospy.get_param("~position_only")
+        # self.armtag = InterbotixArmTagInterface(
+        #     armtag_ns=rospy.get_namespace().strip("/"),
+        #     apriltag_ns=rospy.get_param("~apriltag_ns"),
+        #     init_node=False
+        # )
+        self.setWindowIcon(
+            QIcon(
+                self.pkg_path + 
+                "/images/gui/icon/Interbotix_Circle.png"
+            )
+        )
+        # self.create_snap_block()
+        # self.create_display_block()
+        self.show()
+
+    # def create_snap_block(self):
+    #     """Creates the Snap Block containing the Snap Pose button and Num Samples box"""
+    #     self.button_snappose.clicked.connect(self.snap_pose)
+
+    # def create_display_block(self):
+    #     """Creates a display to show the 'ref to arm base_link' transform"""
+    #     self.label_description.setText(
+    #         ("Snapped pose represents the transform from\n'%s' to '%s'.") 
+    #         % (self.armtag.get_parent_frame(), self.armtag.get_child_frame())
+    #     )
+    #     self.name_map["X [m]"]       = {'display': self.lineedit_x,     'get_func': self.armtag.get_x}
+    #     self.name_map["Y [m]"]       = {'display': self.lineedit_y,     'get_func': self.armtag.get_y}
+    #     self.name_map["Z [m]"]       = {'display': self.lineedit_z,     'get_func': self.armtag.get_z}
+    #     self.name_map["Roll [rad]"]  = {'display': self.lineedit_roll,  'get_func': self.armtag.get_roll}
+    #     self.name_map["Pitch [rad]"] = {'display': self.lineedit_pitch, 'get_func': self.armtag.get_pitch}
+    #     self.name_map["Yaw [rad]"]   = {'display': self.lineedit_yaw,   'get_func': self.armtag.get_y}
+
+if __name__ == '__main__':
+    rospy.init_node('visual_relations_command_gui')
+    app = QApplication(sys.argv)
+    gui = VisualRelationsCommandGui()
+    # Only kill the program at node shutdown
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    sys.exit(app.exec_())
